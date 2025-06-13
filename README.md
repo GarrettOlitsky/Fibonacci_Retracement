@@ -16,7 +16,7 @@ This tool helps you:
 
 ---
 
-## 🛠️ Getting Started
+## Getting Started
 
 ### Prerequisites
 
