@@ -6,24 +6,13 @@ Features a **Bloomberg-inspired dark theme**, auto-refreshing live stock price d
 
 ---
 
-## 🚀 Overview
+Overview
 This tool helps you:
 - **Calculate key Fibonacci retracement levels** from any two price points (High/Low).
 - **View interactive bar charts** showing these levels.
 - **Select stock tickers from a dropdown** to get real-time price updates (powered by Yahoo Finance API).
 - **Experience Bloomberg-like dark styling** for a professional trading feel.
 - **Enjoy auto-refreshing data** without reloading the page.
-
----
-
-## 📦 Features
-
-✅ User-friendly Fibonacci retracement calculator  
-✅ Interactive **bar charts**  
-✅ Live **stock price ticker and dropdown selection**  
-✅ **Dark/Bloomberg terminal-inspired theme**  
-✅ Auto-refreshing **real-time stock data**  
-✅ Easy-to-run **Flask backend with HTML/JS frontend**
 
 ---
 
@@ -56,11 +45,11 @@ python app.py
 ```
 
 4. Open your browser and go to:
-   👉 **[http://127.0.0.1:5000/](http://127.0.0.1:5000/)**
+    **[http://127.0.0.1:5000/](http://127.0.0.1:5000/)**
 
 ---
 
-## 📂 Project Structure
+##  Project Structure
 
 ```
 Fibonacci_Retracement_Levels_BarPlot/
@@ -79,7 +68,7 @@ Fibonacci_Retracement_Levels_BarPlot/
 
 ---
 
-## 🖥️ Technologies Used
+## Technologies Used
 
 * Python (Flask)
 * HTML5
@@ -88,30 +77,19 @@ Fibonacci_Retracement_Levels_BarPlot/
 * Yahoo Finance (yfinance)
 
 ---
-
-## ❗ Notes
-
 * Live stock data is fetched automatically and displayed.
 * Data auto-refreshes every 60 seconds.
 * For additional features or improvements, feel free to fork and contribute!
 
 ---
-
-## 💡 Future Plans
-
+IN PROGRESS 
 * Candlestick charts
 * User account system
 * Enhanced technical indicators (RSI, MACD)
 
----
+___
 
-## 🤝 Contributing
-
-Pull requests are welcome. For major changes, open an issue first to discuss what you would like to change.
-
----
-
-## 📜 License
+## License
 
 [MIT](LICENSE)
 
