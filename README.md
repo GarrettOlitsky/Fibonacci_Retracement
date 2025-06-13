@@ -1,6 +1,6 @@
-# Investment_Bot
 
-## Overview
+
+# Overview
 Investment_Bot is a Python Flask web application that calculates Fibonacci retracement levels and visualizes them on interactive charts. It also supports live stock price data and updates, designed with a clean, dark-themed UI inspired by Bloomberg terminals.
 
 Whether you're a beginner or an experienced trader, this tool helps you quickly identify key support and resistance levels based on Fibonacci ratios.
