@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Live Fibonacci Retracement Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Live Fibonacci Retracement Dashboard</h1>
+
+        <div class="input-section">
+            <input type="text" id="tickerInput" placeholder="Enter Ticker (e.g. AAPL)" />
+            <button onclick="fetchData()">Get Data</button>
+        </div>
+
+        <div class="price-display">
+            <h2 id="symbol">--</h2>
+            <h3>Price: $<span id="price">--</span></h3>
+        </div>
+
+        <canvas id="fibChart" width="800" height="400"></canvas>
+
+        <div class="ticker-bar" id="tickerBar">
+            <!-- Ticker stocks scroll here -->
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
