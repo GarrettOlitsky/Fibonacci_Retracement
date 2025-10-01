@@ -3,7 +3,6 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 import yfinance as yf
-from datetime import datetime
 
 # =========================
 # App Config
@@ -33,7 +32,7 @@ def _normalize_interval(interval: str) -> str:
 
 @st.cache_data(show_spinner=False)
 def fetch(symbol: str, interval: str) -> pd.DataFrame:
-    """Download OHLCV with yfinance, normalized columns."""
+    """Download OHLCV with yfinance. Returns an empty frame with the right columns if no data."""
     yf_interval = _normalize_interval(interval)
     period = INTERVAL_TO_PERIOD.get(interval, "60d")
     df = yf.download(
@@ -43,8 +42,10 @@ def fetch(symbol: str, interval: str) -> pd.DataFrame:
         auto_adjust=True,
         progress=False,
     )
+
+    # Return an empty but well-formed DF if nothing came back
     if df.empty:
-        return df
+        return pd.DataFrame(columns=["Date", "Open", "High", "Low", "Close", "Volume"])
 
     df = df.reset_index()
 
@@ -54,13 +55,12 @@ def fetch(symbol: str, interval: str) -> pd.DataFrame:
     elif "Date" not in df.columns and "date" in df.columns:
         df = df.rename(columns={"date": "Date"})
 
-    # Normalize other columns: Open/High/Low/Close/Volume
+    # Normalize OHLCV
     df = df.rename(columns=str.title)
-    needed = {"Date", "Open", "High", "Low", "Close", "Volume"}
-    missing = needed.difference(df.columns)
-    if missing:
-        raise ValueError(f"Missing columns from data: {missing}")
 
+    # Keep the required columns only (in the correct order)
+    cols = ["Date", "Open", "High", "Low", "Close", "Volume"]
+    df = df[cols]
     return df
 
 def rsi(series: pd.Series, length: int = 14) -> pd.Series:
@@ -101,7 +101,7 @@ def recent_swing(df: pd.DataFrame, lookback: int = 200):
 
     sub = df.tail(n).reset_index(drop=True)  # fresh 0..n-1 index
 
-    # Use positional argmax/argmin to guarantee scalars
+    # Positional argmax/argmin to guarantee scalars
     hi_pos = int(np.argmax(sub["High"].to_numpy()))
     lo_pos = int(np.argmin(sub["Low"].to_numpy()))
 
