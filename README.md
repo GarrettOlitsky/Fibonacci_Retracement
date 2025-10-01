@@ -22,7 +22,7 @@ This app helps traders quickly identify swing highs/lows, key fib retracement le
 
 Clone the repo:
 ````
-git clone https://github.com/GarrettOlitsky/Fibonacci_Retracement_Levels_BarPlot.git
+git clone https://github.com/GarrettOlitsky/Fibonacci_Retracement.git
 cd Fibonacci_Retracement_Levels_BarPlot
 ````
 
