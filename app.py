@@ -1,17 +1,18 @@
-import time
-from datetime import datetime
-from functools import lru_cache
-
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 import yfinance as yf
+from datetime import datetime
 
 # =========================
 # App Config
 # =========================
-st.set_page_config(page_title="Fibonacci Day Trading Dashboard", layout="wide", initial_sidebar_state="expanded")
+st.set_page_config(
+    page_title="Fibonacci Day Trading Dashboard",
+    layout="wide",
+    initial_sidebar_state="expanded",
+)
 
 # =========================
 # Helpers
@@ -23,7 +24,7 @@ INTERVAL_TO_PERIOD = {
     "15m": "60d",
     "30m": "60d",
     "60m": "730d",
-    "1h": "730d",   # we'll map to 60m
+    "1h": "730d",   # map to 60m
     "1d": "max",
 }
 
@@ -35,14 +36,31 @@ def fetch(symbol: str, interval: str) -> pd.DataFrame:
     """Download OHLCV with yfinance, normalized columns."""
     yf_interval = _normalize_interval(interval)
     period = INTERVAL_TO_PERIOD.get(interval, "60d")
-    df = yf.download(symbol, period=period, interval=yf_interval, auto_adjust=True, progress=False)
+    df = yf.download(
+        symbol,
+        period=period,
+        interval=yf_interval,
+        auto_adjust=True,
+        progress=False,
+    )
     if df.empty:
         return df
+
     df = df.reset_index()
+
     # Normalize datetime column to "Date"
     if "Datetime" in df.columns:
         df = df.rename(columns={"Datetime": "Date"})
+    elif "Date" not in df.columns and "date" in df.columns:
+        df = df.rename(columns={"date": "Date"})
+
+    # Normalize other columns: Open/High/Low/Close/Volume
     df = df.rename(columns=str.title)
+    needed = {"Date", "Open", "High", "Low", "Close", "Volume"}
+    missing = needed.difference(df.columns)
+    if missing:
+        raise ValueError(f"Missing columns from data: {missing}")
+
     return df
 
 def rsi(series: pd.Series, length: int = 14) -> pd.Series:
@@ -75,16 +93,22 @@ def recent_swing(df: pd.DataFrame, lookback: int = 200):
     """
     Pick recent swing high/low from last N candles.
     Returns (hi_price, hi_time), (lo_price, lo_time), trend_up(bool).
+    Uses positional indexing to avoid duplicate-index issues.
     """
     n = min(len(df), lookback)
     if n < 5:
         return None, None, None
-    sub = df.tail(n)
-    hi_idx = sub["High"].idxmax()
-    lo_idx = sub["Low"].idxmin()
-    hi = (float(df.loc[hi_idx, "High"]), df.loc[hi_idx, "Date"])
-    lo = (float(df.loc[lo_idx, "Low"]),  df.loc[lo_idx, "Date"])
-    trend_up = lo_idx < hi_idx
+
+    sub = df.tail(n).reset_index(drop=True)  # fresh 0..n-1 index
+
+    # Use positional argmax/argmin to guarantee scalars
+    hi_pos = int(np.argmax(sub["High"].to_numpy()))
+    lo_pos = int(np.argmin(sub["Low"].to_numpy()))
+
+    hi = (float(sub.loc[hi_pos, "High"]), sub.loc[hi_pos, "Date"])
+    lo = (float(sub.loc[lo_pos, "Low"]),  sub.loc[lo_pos, "Date"])
+
+    trend_up = lo_pos < hi_pos  # low happened before high -> up swing
     return hi, lo, trend_up
 
 def fib_levels(high: float, low: float, trend_up: bool):
@@ -167,14 +191,6 @@ with st.sidebar:
     show_rsi = st.checkbox("RSI (14)", value=True)
     show_macd = st.checkbox("MACD (12,26,9)", value=False)
     alert_level = st.selectbox("Alert on primary Fib", ["Off","23%","38%","50%","61%","79%"], index=0)
-    refresh_sec = st.number_input("Auto-refresh (seconds)", min_value=0, max_value=300, value=0, step=1)
-    st.caption("Tip: set refresh to 5–15s for active monitoring.")
-
-# optional auto-refresh
-if refresh_sec and refresh_sec > 0:
-    st_autorefresh = st.experimental_rerun  # placeholder to please linters
-    st.runtime.legacy_caching.clear_cache()  # keep data fresh if desired
-    st.experimental_set_query_params(ts=int(time.time()))
 
 # =========================
 # Data
@@ -210,8 +226,13 @@ fig = plot_candles(df.tail(300), title)
 
 # Primary fib lines
 for name, level in fib_primary.items():
-    fig.add_hline(y=level, line=dict(width=1, dash="dot"), annotation_text=f"{name}: {level:.2f}",
-                  annotation_position="right", opacity=0.6)
+    fig.add_hline(
+        y=level,
+        line=dict(width=1, dash="dot"),
+        annotation_text=f"{name}: {level:.2f}",
+        annotation_position="right",
+        opacity=0.6
+    )
 
 # Confluence shading
 for c in clusters:
@@ -229,9 +250,8 @@ col1, col2, col3, col4 = st.columns(4)
 with col1:
     st.metric("Price", f"{price:.2f}")
 with col2:
-    last_rsi = float(df["RSI"].iloc[-1])
     if show_rsi:
-        st.metric("RSI (14)", f"{last_rsi:.1f}")
+        st.metric("RSI (14)", f"{float(df['RSI'].iloc[-1]):.1f}")
 with col3:
     if show_macd:
         st.metric("MACD", f"{float(df['MACD'].iloc[-1]):.3f}")
@@ -270,7 +290,6 @@ with pc1:
 with pc2:
     entry = st.number_input("Entry", value=float(price), step=0.01, format="%.2f")
 with pc3:
-    # default stop at nearest fib level
     default_stop = float(near[0]["Price"]) if near else price * 0.99
     stop = st.number_input("Stop", value=default_stop, step=0.01, format="%.2f")
 with pc4:
@@ -286,9 +305,6 @@ cols[0].write(f"**Max Position**: `{shares}` shares")
 cols[1].write(f"**Risk Amount**: `${risk_amt:.2f}`")
 cols[2].write(f"**Est. R:R to 0%**: `{rr:.2f}`")
 
-# =========================
-# Secondary Panels
-# =========================
 with st.expander("Confluence Details"):
     if clusters:
         st.write(pd.DataFrame([
@@ -308,6 +324,5 @@ with st.expander("Notes / How to Use"):
 - **Confluence**: Shaded zones show where fib levels from other timeframes cluster (±0.2%). These are prime **reaction areas**.
 - **Confirmation**: Combine fibs with **VWAP / RSI / MACD**. Example: long if pullback to 38–61% **and** RSI not overbought **and** price above VWAP.
 - **Risk**: Use the built-in position sizer. Place stops beyond the level you’re trading against (e.g., just below 61% in an uptrend).
-- **Refresh**: Set auto-refresh for live monitoring during the session.
 - **Reminder**: This is a **tool**, not a signal. Always validate with your plan.
 """)
