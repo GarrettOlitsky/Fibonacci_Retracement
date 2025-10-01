@@ -1,4 +1,6 @@
-flask
-yfinance
+streamlit
 pandas
+numpy
+yfinance
+plotly
 
