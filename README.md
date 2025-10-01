@@ -1,6 +1,6 @@
  # Fibonacci Day Trading Dashboard
 
-A Streamlit web app for day traders that visualizes Fibonacci retracement levels, VWAP, RSI, MACD, and moving averages in.
+A Streamlit web app for day traders that visualizes Fibonacci retracement levels, VWAP, RSI, MACD, and moving averages written in python.
 
 This app helps traders quickly identify swing highs/lows, key fib retracement levels, confluence zones, and momentum signals for intraday decision-making.
 
