@@ -1,10 +1,10 @@
-Fibonacci Day Trading Dashboard
+ # Fibonacci Day Trading Dashboard
 
-A Streamlit web app for day traders that visualizes Fibonacci retracement levels, VWAP, RSI, MACD, and moving averages in a clean TRON-style neon UI.
+A Streamlit web app for day traders that visualizes Fibonacci retracement levels, VWAP, RSI, MACD, and moving averages in.
 
 This app helps traders quickly identify swing highs/lows, key fib retracement levels, confluence zones, and momentum signals for intraday decision-making.
 
-🚀 Features
+# 🚀 Features
 
 🔹 Automatic Fibonacci retracement levels from recent swing
 
@@ -18,21 +18,22 @@ This app helps traders quickly identify swing highs/lows, key fib retracement le
 
 🔹 Built with Streamlit + Plotly for interactive charts
 
-⚡ Installation
+  #  Installation
 
 Clone the repo:
-
+````
 git clone https://github.com/GarrettOlitsky/Fibonacci_Retracement_Levels_BarPlot.git
 cd Fibonacci_Retracement_Levels_BarPlot
-
+````
 
 Install dependencies:
-
+```
 pip install -r requirements.txt
-
+```
 ▶️ Run the App
+```
 streamlit run app.py
-
+```
 
 Then open http://localhost:8501
  in your browser.
